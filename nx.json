@@ -12,7 +12,7 @@
     ],
     "sharedGlobals": []
   },
-  "nxCloudId": "68601cde987037155c989d3a",
+  "nxCloudId": "686044d97715b9977d7089ab",
   "targetDefaults": {
     "@nx/js:tsc": {
       "cache": true,
@@ -21,12 +21,7 @@
     }
   },
   "plugins": [
-    {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "lint"
-      }
-    },
+    { "plugin": "@nx/eslint/plugin", "options": { "targetName": "lint" } },
     {
       "plugin": "@nx/vite/plugin",
       "options": {

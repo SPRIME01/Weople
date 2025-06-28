@@ -14,7 +14,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@org/source": ["src/index.ts"]
+      "@weople2/source": ["src/main.ts"]
     }
   },
   "files": [],

@@ -1,5 +1,6 @@
 {
-  "name": "Weople",
+  "type": "module",
+  "name": "weople2",
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "includedScripts": [],
   "sourceRoot": "src",
@@ -10,7 +11,7 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/weople",
+        "outputPath": "dist/weople2",
         "main": "./src/index.ts",
         "tsConfig": "./tsconfig.lib.json",
         "assets": ["*.md"]

@@ -1,0 +1,19 @@
+{
+  "name": "tools",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tools/generators/src",
+  "projectType": "library",
+  "tags": ["type:infra", "scope:tools"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/tools/generators",
+        "main": "libs/tools/generators/src/index.ts",
+        "tsConfig": "libs/tools/generators/tsconfig.lib.json",
+        "assets": ["libs/tools/generators/*.md"]
+      }
+    }
+  }
+}

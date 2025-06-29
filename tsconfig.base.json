@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@weople/shared/data-access": ["libs/shared/data-access/src/index.ts"],
+      "@weople/shared/types": ["libs/shared/types/src/index.ts"],
+      "@weople/shared/ui": ["libs/shared/ui/src/index.ts"],
+      "@weople/shared/utils": ["libs/shared/utils/src/index.ts"],
+      "@weople/tools/generators": ["libs/tools/generators/src/index.ts"],
+      "@weople/web/feature-contacts": [
+        "libs/web/feature-contacts/src/index.ts"
+      ],
+      "@weople2/frontend": ["apps/frontend/src/main.ts"]
+    }
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./apps/frontend"
+    }
+  ]
+}

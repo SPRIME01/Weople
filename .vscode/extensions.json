@@ -8,6 +8,7 @@
     "svelte.svelte-vscode",
     "vitest.explorer",
     "denoland.vscode-deno",
-    "bradlc.vscode-tailwindcss"
+    "bradlc.vscode-tailwindcss",
+    "firsttris.vscode-jest-runner"
   ]
 }

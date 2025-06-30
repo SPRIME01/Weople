@@ -68,8 +68,7 @@
       ],
       "@weople/web/feature-social": ["apps/web/feature-social/src/index.ts"],
       "@weople/web/feature-tags": ["apps/web/feature-tags/src/index.ts"],
-      "@weople/web/testing": ["apps/web/testing/src/index.ts"],
-      "@weople2/frontend": ["apps/frontend/src/main.ts"]
+      "@weople/web/testing": ["apps/web/testing/src/index.ts"]
     }
   },
   "files": [],

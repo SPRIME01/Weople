@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { User } from '@weople/shared/types';
+  import type { User } from '@weople/lib/shared/types';
 
   export let user: User | null = null;
   export let onLogin: (email: string, password: string) => void = () =>

@@ -1,0 +1,12 @@
+{
+  "name": "@weople/web/feature-auth",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.1.0",
+    "svelte": "^5.34.9"
+  }
+}

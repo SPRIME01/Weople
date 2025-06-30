@@ -1,0 +1,19 @@
+{
+  "name": "@weople/shared/performance",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/performance/src",
+  "projectType": "library",
+  "tags": ["type:perf", "scope:shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/performance",
+        "main": "libs/shared/performance/src/index.ts",
+        "tsConfig": "libs/shared/performance/tsconfig.lib.json",
+        "assets": ["libs/shared/performance/*.md"]
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "web-feature-offline",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/web/feature-offline/src",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:web", "domain:offline"],
+  "// targets": "to see all targets run: nx show project web-feature-offline --web",
+  "targets": {}
+}

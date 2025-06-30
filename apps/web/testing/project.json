@@ -1,0 +1,19 @@
+{
+  "name": "web-testing",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/web/testing/src",
+  "projectType": "library",
+  "tags": ["type:testing", "scope:web"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/web/testing",
+        "main": "apps/web/testing/src/index.ts",
+        "tsConfig": "apps/web/testing/tsconfig.lib.json",
+        "assets": ["apps/web/testing/*.md"]
+      }
+    }
+  }
+}

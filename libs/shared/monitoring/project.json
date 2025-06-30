@@ -1,0 +1,19 @@
+{
+  "name": "monitoring",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/monitoring/src",
+  "projectType": "library",
+  "tags": ["type:monitoring", "scope:shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/monitoring",
+        "main": "libs/shared/monitoring/src/index.ts",
+        "tsConfig": "libs/shared/monitoring/tsconfig.lib.json",
+        "assets": ["libs/shared/monitoring/*.md"]
+      }
+    }
+  }
+}

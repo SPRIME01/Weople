@@ -11,3 +11,14 @@ export interface Contact {
   company?: string;
   avatar?: string;
 }
+
+// User type for authentication
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

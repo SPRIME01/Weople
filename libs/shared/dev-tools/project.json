@@ -1,0 +1,19 @@
+{
+  "name": "dev-tools",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/dev-tools/src",
+  "projectType": "library",
+  "tags": ["type:dev-tools", "scope:shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/dev-tools",
+        "main": "libs/shared/dev-tools/src/index.ts",
+        "tsConfig": "libs/shared/dev-tools/tsconfig.lib.json",
+        "assets": ["libs/shared/dev-tools/*.md"]
+      }
+    }
+  }
+}

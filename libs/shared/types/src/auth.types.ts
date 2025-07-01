@@ -1,4 +1,4 @@
-import type { AuthError, Session, User } from '@supabase/supabase-js';
+import type { User, AuthError, Session } from '@supabase/supabase-js';
 
 export interface SignUpInput {
   email: string;

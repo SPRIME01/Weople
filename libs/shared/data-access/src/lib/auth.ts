@@ -1,17 +1,36 @@
+import type { AuthResult, SignUpInput } from '@libs/shared/types/auth.types';
+import { profileService } from '../profileService';
 import { supabase } from '../supabase';
-import { ProfileService } from './profile.service';
-import type { SignUpInput, AuthResult } from '@libs/shared/types/auth.types';
 
-const profileService = new ProfileService();
+// Helper to call the edge function
+async function signUpWithProfileEdgeFn(
+  email: string,
+  password: string,
+): Promise<AuthResult> {
+  const response = await fetch('/functions/v1/signUpWithProfile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    return {
+      user: null,
+      error: result.error || {
+        name: 'AuthApiError',
+        message: 'Unknown error',
+        status: 400,
+      },
+    };
+  }
+  return { user: result.user, session: null, error: null };
+}
 
-// RFC 5322 compliant email regex
-// eslint-disable-next-line no-control-regex
-const EMAIL_REGEX =
-  /^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x5f-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/;
+// Simplified email regex compatible with JavaScript RegExp
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-// Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.
 const PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{12,}$/;
 
 export const signUp = async ({
   email,
@@ -39,6 +58,14 @@ export const signUp = async ({
     };
   }
 
+  // Try atomic sign up via edge function
+  try {
+    return await signUpWithProfileEdgeFn(email, password);
+  } catch {
+    // fallback to legacy (non-atomic) approach
+  }
+
+  // Legacy fallback: not atomic
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -50,11 +77,21 @@ export const signUp = async ({
 
   if (data.user) {
     try {
+      // Attempt to create profile
       await profileService.createProfile(data.user.id, data.user.email);
     } catch (profileError) {
-      // If profile creation fails, we should ideally roll back the user creation or mark it for review.
-      // For now, we'll just return the error.
-      return { user: null, error: profileError as AuthApiError };
+      // Normalize error to AuthError shape
+      return {
+        user: null,
+        error: {
+          name: 'ProfileCreationError',
+          message:
+            profileError instanceof Error
+              ? profileError.message
+              : 'Profile creation failed',
+          status: 400,
+        },
+      };
     }
   }
 

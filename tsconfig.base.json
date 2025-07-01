@@ -14,6 +14,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@libs/*": ["libs/*"],
       "@weople/mobile/feature-analytics": [
         "apps/mobile/feature-analytics/src/index.ts"
       ],

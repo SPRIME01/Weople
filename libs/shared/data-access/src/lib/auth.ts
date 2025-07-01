@@ -1,6 +1,8 @@
-import type { AuthResult, SignUpInput } from '@libs/shared/types/auth.types';
-import { profileService } from '../profileService';
+import type { AuthResult, SignUpInput } from '@weople/shared/types';
+import { ProfileService } from './profile.service';
 import { supabase } from '../supabase';
+
+const profileService = new ProfileService();
 
 // Helper to call the edge function
 async function signUpWithProfileEdgeFn(

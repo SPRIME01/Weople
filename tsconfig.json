@@ -14,14 +14,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@weople2/frontend": ["apps/frontend/src/main.ts"]
+      "@weople2/web": ["apps/web/src/main.ts"]
     }
   },
   "files": [],
   "include": [],
-  "references": [
-    {
-      "path": "./apps/frontend"
-    }
-  ]
+  "references": []
 }

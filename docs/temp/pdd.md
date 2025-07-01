@@ -18,13 +18,13 @@ Each prompt should be immediately executable by an AI coding agent with specific
 
 ### Cycle A - Core Authentication Infrastructure
 
-**RED-A:** Create failing Vitest tests in `libs/shared/data-access/src/__tests__/auth.test.ts` that verify `signUp(email: string, password: string)` function calls Supabase's `auth.signUp()`, automatically creates a profile record in the `profiles` table with RLS policy `users_own_profile`, generates JWT tokens with `auth.uid()`, and returns `AuthResult` interface. Test should expect specific Supabase error codes for duplicate emails and invalid passwords.
+~~**RED-A:** Create failing Vitest tests in `libs/shared/data-access/src/__tests__/auth.test.ts` that verify `signUp(email: string, password: string)` function calls Supabase's `auth.signUp()`, automatically creates a profile record in the `profiles` table with RLS policy `users_own_profile`, generates JWT tokens with `auth.uid()`, and returns `AuthResult` interface. Test should expect specific Supabase error codes for duplicate emails and invalid passwords.~~
 
-**GREEN-A:** Implement the minimal `signUp` function in `libs/shared/data-access/src/lib/auth.ts` that passes all tests by integrating with Supabase client from `libs/shared/data-access/src/lib/supabase.ts`, calling `supabase.auth.signUp()` with email/password validation, creating profile record via RLS-protected insert to `profiles` table, and returning properly typed `AuthResult` with user data and session tokens.
+~~**GREEN-A:** Implement the minimal `signUp` function in `libs/shared/data-access/src/lib/auth.ts` that passes all tests by integrating with Supabase client from `libs/shared/data-access/src/lib/supabase.ts`, calling `supabase.auth.signUp()` with email/password validation, creating profile record via RLS-protected insert to `profiles` table, and returning properly typed `AuthResult` with user data and session tokens.~~
 
-**BLUE-A:** Refactor auth module to extract `ProfileService` class in `libs/shared/data-access/src/lib/profile.service.ts`, add comprehensive TypeScript interfaces in `libs/shared/types/src/auth.types.ts` including `SignUpInput`, `AuthResult`, `UserProfile`, implement password strength validation using industry standards from the spec, and add proper error handling for all Supabase auth scenarios.
+~~**BLUE-A:** Refactor auth module to extract `ProfileService` class in `libs/shared/data-access/src/lib/profile.service.ts`, add comprehensive TypeScript interfaces in `libs/shared/types/src/auth.types.ts` including `SignUpInput`, `AuthResult`, `UserProfile`, implement password strength validation using industry standards from the spec, and add proper error handling for all Supabase auth scenarios.~~
 
-**REG-A:** Add comprehensive regression tests covering edge cases: email format validation per RFC 5322, password requirements (12+ chars, complexity), duplicate email handling with proper Supabase error mapping, profile creation failure rollback, JWT token validation, and RLS policy enforcement verification using test user contexts.
+~~**REG-A:** Add comprehensive regression tests covering edge cases: email format validation per RFC 5322, password requirements (12+ chars, complexity), duplicate email handling with proper Supabase error mapping, profile creation failure rollback, JWT token validation, and RLS policy enforcement verification using test user contexts.~~
 
 ### Cycle B - SvelteKit Registration Interface
 

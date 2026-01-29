@@ -25,14 +25,14 @@
 ### Web Libraries (Svelte)
 
 ```bash
-npx nx g @nx/svelte:lib feature-contacts --directory=apps/web/feature-contacts --importPath=@weople/web/feature-contacts --buildable --style=css --unitTestRunner=vitest --strict --tags=type:feature,scope:web,domain:contacts
+bunx nx g @nx/svelte:lib feature-contacts --directory=apps/web/feature-contacts --importPath=@weople/web/feature-contacts --buildable --style=css --unitTestRunner=vitest --strict --tags=type:feature,scope:web,domain:contacts
 # ... (all 12 commands)
 ```
 
 ### Mobile Libraries (React-Native)
 
 ```bash
-npx nx g @nx/react-native:lib feature-auth --directory=apps/mobile/feature-auth --importPath=@weople/mobile/feature-auth --buildable --unitTestRunner=jest --strict --tags=type:feature,scope:mobile,domain:auth
+bunx nx g @nx/react-native:lib feature-auth --directory=apps/mobile/feature-auth --importPath=@weople/mobile/feature-auth --buildable --unitTestRunner=jest --strict --tags=type:feature,scope:mobile,domain:auth
 # ... (all 7 commands)
 ```
 

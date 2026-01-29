@@ -3,8 +3,8 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/web/feature-contacts/src",
   "projectType": "library",
+  "dependencies": ["@weople/shared/types"],
   "tags": ["type:feature", "scope:web", "domain:contacts"],
   "// targets": "to see all targets run: nx show project feature-contacts --web",
-  "targets": {},
-  "dependencies": ["@weople/shared/types"]
+  "targets": {}
 }

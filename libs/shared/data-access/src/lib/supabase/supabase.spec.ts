@@ -1,15 +1,33 @@
-import {
-  createSupabaseClient,
-  detectEnvironment,
-  getSupabaseConfig,
-} from './supabase';
+let createSupabaseClient: any;
+let detectEnvironment: any;
+let getSupabaseConfig: any;
 
 describe('Supabase Configuration', () => {
-  beforeEach(() => {
-    // Mock environment variables
+  beforeEach(async () => {
+    // Save originals and mock environment variables before importing the module
+    const g = globalThis as unknown as {
+      __original__WebAssembly?: unknown;
+      __original__Request?: unknown;
+      __original__Response?: unknown;
+      WebAssembly?: unknown;
+      Request?: unknown;
+      Response?: unknown;
+    };
+    g.__original__WebAssembly = g.WebAssembly;
+    g.__original__Request = g.Request;
+    g.__original__Response = g.Response;
+    delete g.WebAssembly;
+    delete g.Request;
+    delete g.Response;
+
     process.env['SUPABASE_URL'] = 'https://test.supabase.co';
     process.env['SUPABASE_ANON_KEY'] = 'test-anon-key';
     process.env['NODE_ENV'] = 'test';
+
+    const mod = await import('.');
+    createSupabaseClient = mod.createSupabaseClient;
+    detectEnvironment = mod.detectEnvironment;
+    getSupabaseConfig = mod.getSupabaseConfig;
   });
 
   afterEach(() => {
@@ -17,6 +35,29 @@ describe('Supabase Configuration', () => {
     delete process.env['SUPABASE_URL'];
     delete process.env['SUPABASE_ANON_KEY'];
     delete process.env['NODE_ENV'];
+
+    // Restore globals if they were set
+    const g = globalThis as any;
+    if (typeof g.__original__WebAssembly !== 'undefined')
+      g.WebAssembly = g.__original__WebAssembly;
+    if (typeof g.__original__Request !== 'undefined')
+      g.Request = g.__original__Request;
+    if (typeof g.__original__Response !== 'undefined')
+      g.Response = g.__original__Response;
+  });
+
+  afterEach(() => {
+    // Clean up environment variables
+    delete process.env['SUPABASE_URL'];
+    delete process.env['SUPABASE_ANON_KEY'];
+    delete process.env['NODE_ENV'];
+
+    // Clear module cache to ensure fresh import in next test
+    Object.keys(require.cache || {}).forEach((key) => {
+      if (key.includes('/libs/shared/data-access/src/lib/supabase')) {
+        delete require.cache[key];
+      }
+    });
   });
 
   describe('detectEnvironment', () => {

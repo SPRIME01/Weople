@@ -11,16 +11,19 @@ export const detectEnvironment = (): EnvironmentConfig => {
     // Netlify Edge Functions
     typeof globalThisAny['Netlify'] !== 'undefined' ||
     // Vercel Edge Runtime
+    // Note: exclude Bun/Deno (which expose Web APIs) from being treated as Edge
     (typeof WebAssembly !== 'undefined' &&
       typeof Request !== 'undefined' &&
-      typeof Response !== 'undefined');
+      typeof Response !== 'undefined' &&
+      typeof (globalThis as any).Bun === 'undefined' &&
+      typeof (globalThis as any).Deno === 'undefined');
 
   // Platform detection
   const platform = isEdgeFunction
     ? 'edge'
     : typeof window !== 'undefined'
-    ? 'web'
-    : 'mobile';
+      ? 'web'
+      : 'mobile';
 
   const isDevelopment =
     process.env['NODE_ENV'] === 'development' ||

@@ -56,7 +56,7 @@
       ],
       "@weople/web/feature-health": ["apps/web/feature-health/src/index.ts"],
       "@weople/web/feature-interactions": [
-        "apps/web/feature-auth/apps/web/feature-interactions/src/index.ts"
+        "apps/web/feature-interactions/src/index.ts"
       ],
       "@weople/web/feature-network": ["apps/web/feature-network/src/index.ts"],
       "@weople/web/feature-offline": ["apps/web/feature-offline/src/index.ts"],

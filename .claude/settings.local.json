@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(oh-my-claudecode:ultrawork)",
+      "Skill(oh-my-claudecode:analyze)",
+      "Bash(wc -l /home/sprime01/projects/Weople/libs/shared/data-access/src/lib/validation/*.ts)",
+      "Bash(npm run test -- --listTests)",
+      "Bash(tree -L 3 -I node_modules /home/sprime01/projects/Weople)",
+      "Bash(xargs ls -la)",
+      "Bash(rm /home/sprime01/projects/Weople/package-lock.json /home/sprime01/projects/Weople/pnpm-lock.yaml)",
+      "Bash(ls -la /home/sprime01/projects/Weople/*.json /home/sprime01/projects/Weople/*.lock /home/sprime01/projects/Weople/*.yaml)",
+      "Bash(grep -r \"from ''''svelte''''\\\\|from svelte\\\\|from ''''@sveltejs/vite-plugin-svelte''''\\\\|svelte-check\" /home/sprime01/projects/Weople/apps --include=*.ts --include=*.tsx --include=*.js --include=*.jsx)",
+      "Bash(grep -r \"@tailwindcss/typography\\\\|openai\\\\|from ''''openai''''\\\\|from openai\" /home/sprime01/projects/Weople/apps --include=*.ts --include=*.tsx --include=*.js --include=*.jsx --include=*.svelte)",
+      "Bash(find /home/sprime01/projects/Weople/apps -name *.svelte)",
+      "Bash(bun install)",
+      "Bash(bun remove @tailwindcss/typography openai svelte svelte-check prettier-plugin-svelte @sveltejs/vite-plugin-svelte)",
+      "Bash(grep -r \"RealtimeChannel\\\\|postgres_changes\" node_modules/@supabase/realtime-js/dist/main/*.d.ts)",
+      "Bash(cat /home/sprime01/projects/Weople/libs/shared/types/package.json)",
+      "Bash(npx tsc --noEmit --project /home/sprime01/projects/Weople/libs/shared/data-access/tsconfig.lib.json)",
+      "Bash(npx tsc --noEmit -p libs/shared/data-access/tsconfig.lib.json)",
+      "Bash(cat libs/shared/data-access/src/lib/supabase/config.ts)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(bunx nx run-many -t build --parallel=false)",
+      "Bash(cat /tmp/claude/-home-sprime01-projects-Weople/tasks/b505683.output)",
+      "Bash(cat /tmp/claude/-home-sprime01-projects-Weople/tasks/be1ff88.output)",
+      "Bash(cat /tmp/claude/-home-sprime01-projects-Weople/tasks/bbe72df.output)",
+      "Bash(bunx nx show projects)",
+      "Bash(bunx nx build data-access types utils)",
+      "Bash(bunx nx build types)",
+      "Bash(bunx nx build utils)",
+      "Bash(git add -A)"
+    ]
+  }
+}

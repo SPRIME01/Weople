@@ -1,4 +1,5 @@
 import { EnvironmentConfig, SupabaseConfig } from './types';
+import { warn } from '../logger';
 
 /**
  * Environment detection utilities
@@ -103,6 +104,6 @@ export const validateConfig = (config: SupabaseConfig): void => {
     !config.url.includes('supabase.co') &&
     !config.url.includes('localhost')
   ) {
-    console.warn('URL does not appear to be a valid Supabase URL');
+    warn('URL does not appear to be a valid Supabase URL', { url: config.url });
   }
 };

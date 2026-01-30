@@ -310,8 +310,8 @@ Implement complete email/password authentication with validation, password stren
 // apps/web/src/lib/stores/auth.store.ts
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
-import { AuthService } from '@weople/data-access';
-import { getSupabaseClient } from '@weople/data-access';
+import { AuthService } from '@weople/shared/data-access';
+import { getSupabaseClient } from '@weople/shared/data-access';
 import type { AuthSession, AuthUser } from '@weople/types';
 
 interface AuthState {
@@ -623,7 +623,7 @@ Implement OAuth authentication with Google and LinkedIn providers using PKCE flo
 // apps/web/src/routes/auth/callback/+server.ts
 import { redirect, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { createSupabaseClient } from '@weople/data-access';
+import { createSupabaseClient } from '@weople/shared/data-access';
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
   const code = url.searchParams.get('code');
@@ -814,7 +814,7 @@ export class BiometricService {
 // apps/mobile/src/features/auth/BiometricPrompt.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { BiometricService } from '@weople/data-access';
+import { BiometricService } from '@weople/shared/data-access';
 import { Ionicons } from '@expo/vector-icons';
 
 interface BiometricPromptProps {
@@ -1101,8 +1101,8 @@ export class SessionService {
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { authStore } from '$lib/stores/auth.store';
-  import { SessionService } from '@weople/data-access';
-  import { getSupabaseClient } from '@weople/data-access';
+  import { SessionService } from '@weople/shared/data-access';
+  import { getSupabaseClient } from '@weople/shared/data-access';
   import { goto } from '$app/navigation';
 
   let showWarning = false;
@@ -1352,8 +1352,8 @@ export class ProfileService {
 <!-- apps/web/src/lib/components/profile/AvatarUpload.svelte -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { ProfileService } from '@weople/data-access';
-  import { getSupabaseClient } from '@weople/data-access';
+  import { ProfileService } from '@weople/shared/data-access';
+  import { getSupabaseClient } from '@weople/shared/data-access';
   import { authStore } from '$lib/stores/auth.store';
 
   export let currentAvatar: string | null = null;

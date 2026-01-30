@@ -1,6 +1,6 @@
 # Supabase Data Access Library
 
-This library provides a configured Supabase client for the Weople2 workspace, optimized for edge functions, Netlify deployment, and cross-platform compatibility.
+This library provides a configured Supabase client for the weople workspace, optimized for edge functions, Netlify deployment, and cross-platform compatibility.
 
 This library was generated with [Nx](https://nx.dev).
 
@@ -32,7 +32,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ### 2. Basic Usage
 
 ```typescript
-import { supabase, supabaseAuth, supabaseDb } from '@weople2/data-access';
+import { supabase, supabaseAuth, supabaseDb } from '@weople/shared/data-access';
 
 // Direct client usage
 const { data, error } = await supabase.from('users').select('*');
@@ -47,7 +47,7 @@ const users = await supabaseDb.table('users').select('*');
 ### 3. Authentication
 
 ```typescript
-import { supabaseAuth } from '@weople2/data-access';
+import { supabaseAuth } from '@weople/shared/data-access';
 
 // Sign up
 const { data, error } = await supabaseAuth.signUp(
@@ -70,7 +70,7 @@ supabaseAuth.onAuthStateChange((event, session) => {
 ### 4. Database Operations
 
 ```typescript
-import { supabaseDb } from '@weople2/data-access';
+import { supabaseDb } from '@weople/shared/data-access';
 
 // Basic CRUD
 const { data } = await supabaseDb
@@ -95,7 +95,7 @@ const result = await supabaseDb.rpc('get_user_stats', { user_id: 123 });
 ### 5. File Storage
 
 ```typescript
-import { supabaseStorage } from '@weople2/data-access';
+import { supabaseStorage } from '@weople/shared/data-access';
 
 // Upload file
 const { data, error } = await supabaseStorage.upload(
@@ -121,7 +121,7 @@ The client automatically detects edge function environments and optimizes config
 
 ```typescript
 // netlify/edge-functions/api.ts
-import { createSupabaseAdminClient } from '@weople2/data-access';
+import { createSupabaseAdminClient } from '@weople/shared/data-access';
 
 export default async (request: Request) => {
   const supabase = createSupabaseAdminClient();

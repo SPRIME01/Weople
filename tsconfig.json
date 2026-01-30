@@ -12,16 +12,8 @@
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@weople2/frontend": ["apps/frontend/src/main.ts"]
-    }
+    "baseUrl": "."
   },
   "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./apps/frontend"
-    }
-  ]
+  "include": []
 }

@@ -1,24 +1,12 @@
-export function types(): string {
-  return 'types';
-}
+/**
+ * Legacy types placeholder
+ *
+ * This file is kept for backward compatibility.
+ * All new types should be imported from specific modules:
+ * - `entities` - Core data entity types
+ * - `api` - API request/response types
+ * - `domain` - Domain-specific types (health, AI, etc.)
+ */
 
-// Contact type for the contacts feature
-export interface Contact {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  company?: string;
-  avatar?: string;
-}
-
-// User type for authentication
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+// Export a type to make this a valid module
+export type {};

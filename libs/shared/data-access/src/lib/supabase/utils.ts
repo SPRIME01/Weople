@@ -3,6 +3,13 @@ import type {
   Session,
   SupabaseClient,
 } from '@supabase/supabase-js';
+import {
+  REALTIME_LISTEN_TYPES,
+  type REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
+  type RealtimeChannel,
+  type RealtimePostgresChangesFilter,
+  type RealtimePostgresChangesPayload,
+} from '@supabase/realtime-js';
 import { getSupabaseClient } from './client';
 
 /**
@@ -135,28 +142,33 @@ export class SupabaseDatabase {
   /**
    * Listen to realtime changes
    */
-  subscribe(
+  subscribe<T extends Record<string, unknown> = Record<string, unknown>>(
     table: string,
-    callback: (payload: Record<string, unknown>) => void,
+    callback: (payload: RealtimePostgresChangesPayload<T>) => void,
     options?: {
       event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
       schema?: string;
       filter?: string;
     },
-  ) {
+  ): RealtimeChannel {
     const channel = this.client.channel(`realtime:${table}`);
 
-    // Use type assertion to work around the strict typing
+    // Create a properly typed postgres changes filter
     const changeConfig = {
-      event: options?.event || '*',
+      event: (options?.event || '*') as '*' | 'INSERT' | 'UPDATE' | 'DELETE',
       schema: options?.schema || 'public',
       table,
       filter: options?.filter,
     };
 
-    // Use a type assertion for the event type
-    return (channel as any)
-      .on('postgres_changes' as any, changeConfig, callback)
+    // Use the properly typed on method for postgres_changes
+    // We cast the config to match the expected filter type
+    return (channel as RealtimeChannel)
+      .on(
+        REALTIME_LISTEN_TYPES.POSTGRES_CHANGES,
+        changeConfig as RealtimePostgresChangesFilter<'*'>,
+        callback as (payload: RealtimePostgresChangesPayload<T>) => void,
+      )
       .subscribe();
   }
 }

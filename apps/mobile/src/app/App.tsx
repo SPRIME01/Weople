@@ -85,7 +85,7 @@ export const App = () => {
                 style={[styles.listItem, styles.learning]}
                 onPress={() =>
                   Linking.openURL(
-                    'https://nx.dev/getting-started/intro?utm_source=nx-project',
+                    '// TODO: Replace with your documentation URL',
                   )
                 }
               >
@@ -127,7 +127,7 @@ export const App = () => {
               <TouchableOpacity
                 style={[styles.listItem, styles.learning]}
                 onPress={() =>
-                  Linking.openURL('https://nx.dev/blog/?utm_source=nx-project')
+                  Linking.openURL('// TODO: Replace with your blog URL')
                 }
               >
                 <Svg
@@ -169,7 +169,7 @@ export const App = () => {
                 style={[styles.listItem, styles.learning]}
                 onPress={() =>
                   Linking.openURL(
-                    'https://www.youtube.com/@NxDevtools/videos?utm_source=nx-project',
+                    '// TODO: Replace with your YouTube channel URL',
                   )
                 }
               >
@@ -201,7 +201,7 @@ export const App = () => {
                 style={[styles.listItem, styles.learning]}
                 onPress={() =>
                   Linking.openURL(
-                    'https://nx.dev/nx-api/expo/documents/overview',
+                    '// TODO: Replace with your interactive tutorials URL',
                   )
                 }
               >
@@ -245,7 +245,7 @@ export const App = () => {
           <View style={styles.section}>
             <TouchableOpacity
               onPress={() =>
-                Linking.openURL('https://nx.dev/nx-cloud?utm_source=nx-project')
+                Linking.openURL('// TODO: Replace with your repository URL')
               }
             >
               <View style={[styles.listItem, styles.shadowBox]}>
@@ -273,7 +273,7 @@ export const App = () => {
             <TouchableOpacity
               onPress={() =>
                 Linking.openURL(
-                  'https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console&utm_source=nx-project',
+                  '// TODO: Replace with your VSCode extension URL',
                 )
               }
             >
@@ -308,7 +308,7 @@ export const App = () => {
             <TouchableOpacity
               onPress={() =>
                 Linking.openURL(
-                  'https://plugins.jetbrains.com/plugin/21060-nx-console',
+                  '// TODO: Replace with your JetBrains extension URL',
                 )
               }
             >
@@ -389,7 +389,7 @@ export const App = () => {
                 style={styles.connectToCloudButton}
                 onPress={() => {
                   Linking.openURL(
-                    'https://nx.dev/ci/intro/ci-with-nx#learn-about-nx-on-ci',
+                    '// TODO: Replace with your CI documentation URL',
                   );
                 }}
               >

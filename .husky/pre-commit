@@ -1,1 +1,6 @@
-npx lint-staged
+MISE_BIN="$(command -v mise 2>/dev/null || true)"
+if [ -z "$MISE_BIN" ]; then
+  MISE_BIN="$HOME/.local/bin/mise"
+fi
+
+"$MISE_BIN" exec -- bunx lint-staged

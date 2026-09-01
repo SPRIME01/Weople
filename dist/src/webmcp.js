@@ -4,6 +4,7 @@ import {
   getPersonContext,
   getRelationshipContext,
   getTodayContext,
+  reconcileExpiredSnoozes,
   snoozeIntervention,
   updateRelationshipPolicy,
 } from "./state.js";
@@ -34,13 +35,19 @@ export async function registerWeopleSiteTools({ getState, mutate, onStatus }) {
     return;
   }
 
+  function readState() {
+    const reconciled = reconcileExpiredSnoozes(getState());
+    if (!reconciled.reconciled) return reconciled.state;
+    return mutate(() => reconciled).state;
+  }
+
   const tools = [
     {
       name: "get_today_context",
       description: "Read structured relationship reality that may matter today or soon: upcoming interactions, unresolved commitments, observed facts, explicitly labeled hypotheses, people references, and current intervention state. Synthesize opportunities from the evidence; this tool does not prescribe an introduction or precompute an answer.",
       inputSchema: { type: "object", properties: {}, ...noExtra },
       annotations: { readOnlyHint: true },
-      execute: async () => success({ context: getTodayContext(getState()) }),
+      execute: async () => success({ context: getTodayContext(readState()) }),
     },
     {
       name: "get_person_context",
@@ -53,7 +60,7 @@ export async function registerWeopleSiteTools({ getState, mutate, onStatus }) {
       },
       annotations: { readOnlyHint: true },
       execute: async ({ person_id }) => {
-        try { return success({ context: getPersonContext(getState(), person_id) }); } catch (error) { return failure(error); }
+        try { return success({ context: getPersonContext(readState(), person_id) }); } catch (error) { return failure(error); }
       },
     },
     {
@@ -70,12 +77,12 @@ export async function registerWeopleSiteTools({ getState, mutate, onStatus }) {
       },
       annotations: { readOnlyHint: true },
       execute: async ({ person_id, related_person_id }) => {
-        try { return success({ context: getRelationshipContext(getState(), person_id, related_person_id) }); } catch (error) { return failure(error); }
+        try { return success({ context: getRelationshipContext(readState(), person_id, related_person_id) }); } catch (error) { return failure(error); }
       },
     },
     {
       name: "create_intervention",
-      description: "Create a user-facing Weople intervention from a reasoned conclusion. Side effect: it immediately appears in the live Today view, marked as surfaced by an agent. Include only evidence references that already exist in Weople; clearly label any hypothesis and its confidence.",
+      description: "Create a user-facing Weople intervention from a reasoned conclusion. Side effect: it immediately appears in the live Today view, marked as surfaced by an agent. Include only evidence references that already exist in Weople. When an inference is used, provide its stored hypothesis_ref; Weople derives its wording and confidence from that record.",
       inputSchema: {
         type: "object",
         properties: {
@@ -87,8 +94,7 @@ export async function registerWeopleSiteTools({ getState, mutate, onStatus }) {
           evidence_refs: { type: "array", minItems: 1, uniqueItems: true, items: { type: "string" }, description: "Unique IDs of existing facts, hypotheses, or commitments that support the intervention." },
           relevant_person_ids: { type: "array", uniqueItems: true, items: { type: "string", enum: personIds }, description: "Exact IDs of related people whose context is relevant." },
           sensitivity: { type: "string", enum: ["Standard", "Considerate"], description: "How carefully the opportunity should be framed." },
-          hypothesis: { type: "string", description: "Optional clearly-labeled inference; omit if no inference is used." },
-          confidence: { type: "string", enum: ["Low", "Moderate", "High"], description: "Confidence for the explicitly labeled inference." },
+          hypothesis_ref: { type: "string", description: "Optional existing hypothesis ID. It must also appear in evidence_refs; Weople derives the hypothesis wording and confidence from it." },
           timing: { type: "string", description: "Timing rationale, for example Before tomorrow's meeting." },
         },
         required: ["person_id", "type", "title", "why_now", "suggested_action", "evidence_refs"],
@@ -128,7 +134,7 @@ export async function registerWeopleSiteTools({ getState, mutate, onStatus }) {
     },
     {
       name: "update_relationship_policy",
-      description: "Update a relationship/action policy only after an explicit user instruction. Side effect: the effective policy changes immediately, persists after reload, appears in Policy, and is acknowledged on Today. For the canonical introductions instruction, use target 'global', rule 'introductions', value 'Never send introductions without my approval.', and authority 'Human approval required'.",
+      description: "Update a relationship/action policy only after an explicit user instruction. Side effect: the effective policy changes immediately, persists after reload, appears in Policy, and is acknowledged on Today. Personalized communication and introductions cannot be weakened below human approval. For the canonical Maya instruction, use target 'maya-chen', rule 'introductions', label 'Introductions', value 'Never prepare or send an introduction for Maya unless I explicitly approve it.', and authority 'Human approval required'.",
       inputSchema: {
         type: "object",
         properties: {
@@ -139,9 +145,9 @@ export async function registerWeopleSiteTools({ getState, mutate, onStatus }) {
               rule: { type: "string", enum: policyRules, description: "The exact supported policy key." },
               value: { type: "string", description: "The exact resulting rule text." },
               authority: { type: "string", enum: ["Human approval required", "Low-risk only"], description: "The explicit authority boundary." },
-              label: { type: "string", description: "Optional display label for a person-specific policy." },
+              label: { type: "string", description: "Display label for the policy, for example Introductions." },
             },
-            required: ["rule", "value"],
+            required: ["rule", "label", "value", "authority"],
             additionalProperties: false,
           },
         },

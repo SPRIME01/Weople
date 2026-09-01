@@ -1,6 +1,9 @@
 import { createCanonicalSeed } from "./data.js";
 
 export const STORAGE_KEY = "weople.demo-state.v1";
+const HUMAN_APPROVAL_REQUIRED = "Human approval required";
+const LOW_RISK_ONLY = "Low-risk only";
+const PROTECTED_AUTHORITY_RULES = new Set(["personalized_communication", "introductions"]);
 
 let idSequence = 0;
 
@@ -85,7 +88,9 @@ export function loadState() {
     const parsed = JSON.parse(saved);
     if (!isStructurallyValid(parsed)) return createInitialState();
     if (isUntouchedCanonicalState(parsed) && parsed.demo.seedDate !== localDateKey()) return createInitialState();
-    return parsed;
+    const reconciled = reconcileExpiredSnoozes(parsed);
+    if (reconciled.reconciled) saveState(reconciled.state);
+    return reconciled.state;
   } catch {
     return createInitialState();
   }
@@ -101,8 +106,27 @@ export function resetState() {
   return next;
 }
 
+export function reconcileExpiredSnoozes(state, now = Date.now()) {
+  const nowMs = now instanceof Date ? now.getTime() : typeof now === "number" ? now : Date.parse(now);
+  assert(!Number.isNaN(nowMs), "A valid reconciliation time is required.");
+  const hasExpiredSnooze = state.interventions.some(
+    (item) => item.status === "snoozed" && item.snoozedUntil && Date.parse(item.snoozedUntil) <= nowMs,
+  );
+  if (!hasExpiredSnooze) return { state, reconciled: false };
+
+  const next = clone(state);
+  next.interventions.forEach((item) => {
+    if (item.status === "snoozed" && item.snoozedUntil && Date.parse(item.snoozedUntil) <= nowMs) {
+      item.status = "active";
+      item.snoozedUntil = null;
+    }
+  });
+  return { state: next, reconciled: true };
+}
+
 export function getTodayContext(state) {
-  const todayItems = state.people.flatMap((person) =>
+  const current = reconcileExpiredSnoozes(state).state;
+  const todayItems = current.people.flatMap((person) =>
     person.upcoming.map((interaction) => ({
       person_id: person.id,
       person_name: person.name,
@@ -118,29 +142,30 @@ export function getTodayContext(state) {
       note: "All people, events, and records in this demo are synthetic.",
     },
     upcoming_interactions: todayItems,
-    unresolved_commitments: state.people.flatMap((person) =>
+    unresolved_commitments: current.people.flatMap((person) =>
       person.commitments
         .filter((commitment) => commitment.status === "Unresolved")
         .map((commitment) => ({ person_id: person.id, person_name: person.name, ...commitment })),
     ),
-    recent_observations: state.people.flatMap((person) =>
+    recent_observations: current.people.flatMap((person) =>
       person.facts.map((fact) => ({ person_id: person.id, person_name: person.name, ...fact })),
     ),
-    hypotheses: state.people.flatMap((person) =>
+    hypotheses: current.people.flatMap((person) =>
       person.hypotheses.map((hypothesis) => ({ person_id: person.id, person_name: person.name, ...hypothesis })),
     ),
-    active_interventions: state.interventions
+    active_interventions: current.interventions
       .filter((item) => item.status === "active")
-      .map((item) => interventionContext(state, item)),
-    snoozed_interventions: state.interventions
+      .map((item) => interventionContext(current, item)),
+    snoozed_interventions: current.interventions
       .filter((item) => item.status === "snoozed")
-      .map((item) => interventionContext(state, item)),
-    relevant_people: state.people.map(({ id, name, relationship, company }) => ({ id, name, relationship, company })),
+      .map((item) => interventionContext(current, item)),
+    relevant_people: current.people.map(({ id, name, relationship, company }) => ({ id, name, relationship, company })),
   };
 }
 
 export function getPersonContext(state, personId) {
-  const person = personById(state, personId);
+  const current = reconcileExpiredSnoozes(state).state;
+  const person = personById(current, personId);
   return {
     person: {
       id: person.id,
@@ -155,18 +180,19 @@ export function getPersonContext(state, personId) {
     hypotheses: person.hypotheses,
     unresolved_commitments: person.commitments.filter((item) => item.status === "Unresolved"),
     related_people: person.relatedPeople.map((id) => {
-      const related = personById(state, id);
+      const related = personById(current, id);
       return { id: related.id, name: related.name, relationship: related.relationship, company: related.company };
     }),
-    active_interventions: state.interventions
+    active_interventions: current.interventions
       .filter((item) => item.personId === personId && item.status === "active")
-      .map((item) => interventionContext(state, item)),
+      .map((item) => interventionContext(current, item)),
   };
 }
 
 export function getRelationshipContext(state, personId, relatedPersonId) {
-  const person = personById(state, personId);
-  const related = relatedPersonId ? personById(state, relatedPersonId) : null;
+  const current = reconcileExpiredSnoozes(state).state;
+  const person = personById(current, personId);
+  const related = relatedPersonId ? personById(current, relatedPersonId) : null;
   return {
     focal_person: {
       id: person.id,
@@ -203,6 +229,21 @@ export function createIntervention(state, input) {
   assert(new Set(evidenceRefs).size === evidenceRefs.length, "evidence_refs must not contain duplicates.");
   const evidence = evidenceFor(state, evidenceRefs);
   assert(evidence.length === evidenceRefs.length, "One or more evidence references are invalid.");
+  let hypothesis = null;
+  let confidence = null;
+  let hypothesisRef = null;
+  if (input.hypothesis_ref !== undefined) {
+    assert(typeof input.hypothesis_ref === "string" && input.hypothesis_ref.trim(), "hypothesis_ref must be an existing hypothesis ID.");
+    assert(evidenceRefs.includes(input.hypothesis_ref), "hypothesis_ref must also appear in evidence_refs.");
+    const storedHypothesis = evidence.find((item) => item.id === input.hypothesis_ref && item.kind === "hypothesis");
+    assert(storedHypothesis, "hypothesis_ref must reference a stored hypothesis.");
+    assert(input.hypothesis === undefined && input.confidence === undefined, "Hypothesis text and confidence are derived from hypothesis_ref and cannot be supplied directly.");
+    hypothesisRef = storedHypothesis.id;
+    hypothesis = storedHypothesis.label;
+    confidence = storedHypothesis.confidence;
+  } else {
+    assert(input.hypothesis === undefined && input.confidence === undefined, "Use hypothesis_ref for a stored hypothesis; free-text hypothesis and confidence are not accepted.");
+  }
   const relevantPersonIds = Array.isArray(input.relevant_person_ids) ? input.relevant_person_ids : [];
   assert(new Set(relevantPersonIds).size === relevantPersonIds.length, "relevant_person_ids must not contain duplicates.");
   relevantPersonIds.forEach((id) => personById(state, id));
@@ -224,8 +265,9 @@ export function createIntervention(state, input) {
     evidenceRefs,
     relevantPersonIds,
     sensitivity: input.sensitivity || "Standard",
-    hypothesis: input.hypothesis || null,
-    confidence: input.confidence || "Moderate",
+    hypothesisRef,
+    hypothesis,
+    confidence,
     timing: input.timing || "Timely",
     status: "active",
     snoozedUntil: null,
@@ -256,23 +298,32 @@ export function updateRelationshipPolicy(state, target, policyChange) {
   assert(policyChange && typeof policyChange === "object", "policy_change is required.");
   assert(typeof policyChange.rule === "string", "policy_change.rule is required.");
   assert(typeof policyChange.value === "string" && policyChange.value.trim(), "policy_change.value is required.");
+  const baseRule = state.policies.global[policyChange.rule];
+  assert(baseRule, `Unknown policy rule: ${policyChange.rule}`);
+  const authority = policyChange.authority || baseRule.authority;
+  assert([HUMAN_APPROVAL_REQUIRED, LOW_RISK_ONLY].includes(authority), "authority must be Human approval required or Low-risk only.");
+  if (PROTECTED_AUTHORITY_RULES.has(policyChange.rule)) {
+    assert(
+      authority === HUMAN_APPROVAL_REQUIRED,
+      `The requested authority exceeds the user's allowed boundary: ${policyChange.rule} must remain Human approval required.`,
+    );
+  }
   const next = clone(state);
   const updatedAt = new Date().toISOString();
   let effectivePolicy;
 
   if (target === "global") {
     const rule = next.policies.global[policyChange.rule];
-    assert(rule, `Unknown global policy rule: ${policyChange.rule}`);
     rule.value = policyChange.value.trim();
-    rule.authority = policyChange.authority || "Human approval required";
+    rule.authority = authority;
     effectivePolicy = { scope: "global", rule: policyChange.rule, ...rule };
   } else {
     const person = personById(next, target);
     next.policies.personOverrides[target] ??= {};
     next.policies.personOverrides[target][policyChange.rule] = {
-      label: policyChange.label || policyChange.rule.replaceAll("_", " "),
+      label: policyChange.label || baseRule.label,
       value: policyChange.value.trim(),
-      authority: policyChange.authority || "Human approval required",
+      authority,
       updatedAt,
     };
     effectivePolicy = { scope: "person", person_id: person.id, person_name: person.name, rule: policyChange.rule, ...next.policies.personOverrides[target][policyChange.rule] };
@@ -302,6 +353,7 @@ export function interventionContext(state, intervention) {
       return { id: related.id, name: related.name, relationship: related.relationship };
     }),
     hypothesis: intervention.hypothesis,
+    hypothesis_ref: intervention.hypothesisRef || null,
     confidence: intervention.confidence,
     timing: intervention.timing,
     status: intervention.status,

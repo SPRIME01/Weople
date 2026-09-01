@@ -1,6 +1,7 @@
 import {
   evidenceRecords,
   loadState,
+  reconcileExpiredSnoozes,
   resetState,
   saveState,
   snoozeIntervention,
@@ -9,7 +10,9 @@ import { registerWeopleSiteTools } from "./webmcp.js";
 
 const app = document.querySelector("#app");
 let state = loadState();
-const initialView = () => ({ name: "today", personId: "maya-chen", showDiagnostics: false, showEvidenceFor: null, dismissedHint: false });
+const CHATGPT_PROMPT = "What am I missing today?";
+let copyConfirmationTimer = null;
+const initialView = () => ({ name: "today", personId: "maya-chen", showDiagnostics: false, showEvidenceFor: null, dismissedHint: false, promptStatus: null });
 let view = initialView();
 let mcpStatus = { available: typeof document.modelContext?.registerTool === "function", tools: [], lastMutation: null, message: "Checking browser support…" };
 
@@ -119,13 +122,15 @@ function todayView() {
   const snoozed = state.interventions.filter((item) => item.status === "snoozed");
   const latestActivity = state.activity[0];
   const policyChange = latestActivity?.kind === "policy_updated"
-    ? state.policies.global[latestActivity.rule]
+    ? latestActivity.target === "global"
+      ? state.policies.global[latestActivity.rule]
+      : state.policies.personOverrides[latestActivity.target]?.[latestActivity.rule]
     : null;
   return `<section class="view today-view" aria-labelledby="today-heading">
     <div class="page-heading">
       <div><p class="page-kicker">${new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(new Date())}</p><h1 id="today-heading">Good morning.</h1><p class="lede">The right human possibility, back in attention at the right time.</p></div>
     </div>
-    ${!view.dismissedHint ? `<aside class="chatgpt-hint"><div><span class="hint-mark">✦</span><strong>Notice alongside ChatGPT</strong><p>Ask <button data-dismiss-hint="true" class="inline-prompt">“What am I missing today?”</button> while this page is open.</p></div><button class="close-hint" data-dismiss-hint="true" aria-label="Dismiss hint">×</button></aside>` : ""}
+    ${!view.dismissedHint ? `<aside class="chatgpt-hint"><div><span class="hint-mark">✦</span><strong>Notice alongside ChatGPT</strong><p>Ask <span class="prompt-text">“${CHATGPT_PROMPT}”</span> while this page is open. <button type="button" class="copy-prompt" data-copy-prompt="true">Copy prompt</button><span class="copy-confirmation" role="status">${view.promptStatus || ""}</span></p></div><button class="close-hint" data-dismiss-hint="true" aria-label="Dismiss hint">×</button></aside>` : ""}
     ${policyChange ? `<aside class="state-change-note" role="status" aria-live="polite"><span>Policy updated</span><strong>${esc(policyChange.label)}</strong><p>${esc(policyChange.value)}</p></aside>` : ""}
     ${active.length ? `<section class="interventions-section" aria-labelledby="noticed-heading" aria-live="polite"><div class="section-heading"><p class="eyebrow">Newly noticed</p><h2 id="noticed-heading">Worth your attention</h2></div><div class="intervention-list">${active.map((item) => interventionCard(item)).join("")}</div></section>` : ""}
     ${snoozed.length ? `<section class="snoozed-section" aria-live="polite"><div class="section-heading"><p class="eyebrow">Held for later</p><h2>Timing corrected</h2></div>${snoozed.map((item) => interventionCard(item, { compact: true })).join("")}</section>` : ""}
@@ -177,7 +182,7 @@ function policyView() {
   return `<section class="view policy-view" aria-labelledby="policy-heading"><div class="page-heading"><div><p class="page-kicker">Authority & trust</p><h1 id="policy-heading">Your judgment stays in the loop.</h1><p class="lede">Weople can surface context and prepare work. Meaningful human-facing action stays with you.</p></div></div>
   <section class="policy-intro"><span class="policy-shield">♢</span><div><strong>Effective policy</strong><p>These boundaries apply to the synthetic demo. They are inspectable by you and available to an agent only when you direct it to act.</p></div></section>
   <div class="policy-list" aria-live="polite">${entries.map(([key, policy]) => `<article class="policy-card ${latestActivity?.kind === "policy_updated" && latestActivity.rule === key ? "is-updated" : ""}"><div><p class="eyebrow">${esc(policy.authority)}</p><h2>${esc(policy.label)}</h2><p>${esc(policy.value)}</p></div><span class="authority-label">${policy.authority === "Human approval required" ? "Approval required" : "Bounded autonomy"}</span></article>`).join("")}</div>
-  ${overrides.length ? `<section class="detail-section"><div class="section-heading"><p class="eyebrow">Person-specific</p><h2>Overrides</h2></div>${overrides.map(([personId, rules]) => `<article class="override-card"><strong>${esc(person(personId).name)}</strong>${Object.values(rules).map((rule) => `<p>${esc(rule.label)}: ${esc(rule.value)}</p>`).join("")}</article>`).join("")}</section>` : ""}
+  ${overrides.length ? `<section class="detail-section"><div class="section-heading"><p class="eyebrow">Person-specific</p><h2>Overrides</h2></div>${overrides.map(([personId, rules]) => `<article class="override-card"><strong>${esc(person(personId).name)}</strong>${Object.values(rules).map((rule) => `<p><b>${esc(rule.label)}</b>: ${esc(rule.value)} <span>${esc(rule.authority)}</span></p>`).join("")}</article>`).join("")}</section>` : ""}
   <p class="policy-updated">Last policy update ${dateText(state.policies.lastUpdated, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.</p></section>`;
 }
 
@@ -200,6 +205,11 @@ function shell() {
 }
 
 function render() {
+  const reconciled = reconcileExpiredSnoozes(state);
+  if (reconciled.reconciled) {
+    state = reconciled.state;
+    saveState(state);
+  }
   app.innerHTML = shell();
   wireEvents();
   if (view.showDiagnostics || view.showEvidenceFor) app.querySelector(".modal-close")?.focus();
@@ -222,6 +232,37 @@ function snoozeUntilTomorrowMorning(id) {
   mutate((current) => snoozeIntervention(current, id, current.transient.canonicalTomorrowMorning), "snooze_intervention");
 }
 
+async function copyPrompt() {
+  let copied = false;
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(CHATGPT_PROMPT);
+      copied = true;
+    } catch {
+      copied = false;
+    }
+  }
+  if (!copied) {
+    const temporaryField = document.createElement("textarea");
+    temporaryField.value = CHATGPT_PROMPT;
+    temporaryField.setAttribute("readonly", "");
+    temporaryField.style.position = "fixed";
+    temporaryField.style.opacity = "0";
+    document.body.append(temporaryField);
+    temporaryField.select();
+    copied = document.execCommand("copy");
+    temporaryField.remove();
+  }
+  if (!copied) return;
+  view = { ...view, promptStatus: "Copied" };
+  render();
+  clearTimeout(copyConfirmationTimer);
+  copyConfirmationTimer = setTimeout(() => {
+    view = { ...view, promptStatus: null };
+    render();
+  }, 1600);
+}
+
 function wireEvents() {
   document.querySelectorAll("[data-nav]").forEach((button) => button.addEventListener("click", () => { view = { ...view, name: button.dataset.nav }; render(); }));
   document.querySelectorAll("[data-person]").forEach((button) => button.addEventListener("click", () => { view = { ...view, name: "person", personId: button.dataset.person }; render(); }));
@@ -232,6 +273,7 @@ function wireEvents() {
   document.querySelectorAll("[data-close-diagnostics]").forEach((button) => button.addEventListener("click", () => { view = { ...view, showDiagnostics: false }; render(); }));
   document.querySelectorAll("[data-reset-demo]").forEach((button) => button.addEventListener("click", () => { state = resetState(); view = initialView(); mcpStatus = { ...mcpStatus, lastMutation: null }; render(); }));
   document.querySelectorAll("[data-snooze]").forEach((button) => button.addEventListener("click", () => snoozeUntilTomorrowMorning(button.dataset.snooze)));
+  document.querySelectorAll("[data-copy-prompt]").forEach((button) => button.addEventListener("click", copyPrompt));
   document.querySelectorAll("[data-dismiss-hint]").forEach((button) => button.addEventListener("click", () => { view = { ...view, dismissedHint: true }; render(); }));
 }
 

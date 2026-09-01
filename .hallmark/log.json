@@ -1,0 +1,11 @@
+[
+  {
+    "date": "2026-09-01",
+    "scope": "app",
+    "macrostructure": "Workbench (ledger / index / document / charter)",
+    "theme": "custom",
+    "theme_axes": "light / high-contrast-serif / warm",
+    "enrichment": "none",
+    "brief": "Weople · relationship-intelligence WebMCP demo · full app redesign against design.md"
+  }
+]

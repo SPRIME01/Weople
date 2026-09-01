@@ -1,0 +1,77 @@
+/* Hallmark · tokens.css · Weople design system · source of truth: design.md
+ * All colors OKLCH; pages must reference these by name, never inline raw values.
+ * Icon voice: single Unicode glyph set (✦ ◌ ⌁) — deliberate, one "library".
+ */
+:root {
+  --color-paper: oklch(97.5% 0.010 92);
+  --color-paper-2: oklch(94.5% 0.014 90);
+  --color-paper-3: oklch(91.5% 0.016 90);
+  --color-ink: oklch(26% 0.012 80);
+  --color-ink-2: oklch(46% 0.014 82);
+  --color-ink-3: oklch(48% 0.014 82);
+  --color-rule: oklch(86% 0.012 88);
+  --color-rule-strong: oklch(78% 0.016 86);
+  --color-accent: oklch(56% 0.150 40);
+  --color-accent-ink: oklch(42% 0.130 38);
+  --color-accent-soft: oklch(94% 0.025 50);
+  --color-fact: oklch(52% 0.070 145);
+  --color-fact-soft: oklch(94% 0.030 145);
+  --color-infer: oklch(52% 0.110 60);
+  --color-infer-soft: oklch(95% 0.035 75);
+  --color-commit: oklch(52% 0.090 30);
+  --color-commit-soft: oklch(95% 0.030 30);
+  --color-focus: oklch(56% 0.110 250);
+
+  /* avatar tones (named tokens — no inline oklch in pages) */
+  --color-avatar-clay: oklch(82% 0.070 60);
+  --color-avatar-ink: oklch(80% 0.025 250);
+  --color-avatar-sage: oklch(82% 0.045 145);
+  --color-avatar-blue: oklch(82% 0.045 250);
+  --color-avatar-rose: oklch(82% 0.055 10);
+  --color-avatar-gold: oklch(85% 0.075 90);
+  --color-avatar-lavender: oklch(82% 0.045 300);
+
+  /* overlays & elevation (chroma tinted toward anchor hue 80) */
+  --color-scrim: oklch(20% 0.012 80 / 0.38);
+  --color-shadow: oklch(20% 0.012 80 / 0.27);
+  --shadow-card: 0 1px 4px oklch(20% 0.012 80 / 0.10);
+  --shadow-card-hover: 0 8px 24px oklch(20% 0.012 80 / 0.10), 0 1px 3px oklch(20% 0.012 80 / 0.12);
+  --shadow-card-raised: 0 12px 40px oklch(20% 0.012 80 / 0.13), 0 2px 8px oklch(20% 0.012 80 / 0.10);
+  --color-paper-veil: oklch(97.5% 0.010 92 / 0.97);
+
+  /* layout widths */
+  --width-aside: 17rem;
+
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-md-plus: 1.125rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.25rem;
+  --text-display: clamp(2.6rem, 5.5vw, 4rem);
+  --text-display-s: clamp(1.9rem, 3.8vw, 2.75rem);
+
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4.5rem;
+  --space-3xl: 7rem;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-med: 320ms;
+
+  --rule-hairline: 1px;
+  --radius-card: 4px;
+  --radius-input: 3px;
+}

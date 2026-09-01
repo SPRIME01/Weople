@@ -1,8 +1,0 @@
-{
-  "name": "@weople/mobile/feature-generosity",
-  "version": "0.0.1",
-  "peerDependencies": {
-    "react": "~18.3.1",
-    "react-native": "~0.76.3"
-  }
-}

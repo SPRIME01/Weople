@@ -4,6 +4,10 @@ Weople is a relationship-intelligence system for a specific failure mode: people
 
 This is a WebMCP Challenge submission. It shows a small, complete version of that idea.
 
+## Live demo
+
+[Open Weople](https://weople-webmcp.jholmes07.chatgpt.site) — for WebMCP testing, open it in ChatGPT's built-in browser.
+
 The human sees their relationship data through the Weople interface. ChatGPT sees the same structured data through WebMCP. The agent can notice connections across people, commitments, timing, and evidence that the human hasn't connected yet. The human retains authority over any action that affects another person.
 
 ## Why WebMCP
